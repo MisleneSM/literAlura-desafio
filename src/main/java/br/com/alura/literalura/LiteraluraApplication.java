@@ -29,4 +29,5 @@ public class LiteraluraApplication implements CommandLineRunner {
 		SpringApplication.run(LiteraluraApplication.class, args);
 	}
 
+
 }
