@@ -4,9 +4,15 @@ public class Autor {
     private String autor;
     private int anoNascimento;
     private int anoFalecimento;
+
     private String livros;
 
-    public Autor(){}
+    public Autor(DadosAutor dadosAutor){
+        this.autor = dadosAutor.nome();
+        this.anoNascimento = dadosAutor.dataNascimento();
+        this.anoFalecimento = dadosAutor.dataFalecimento();
+        this.livros = dadosAutor.livros();
+    }
 
     public String getAutor() {
         return autor;
@@ -38,5 +44,13 @@ public class Autor {
 
     public void setLivros(String livros) {
         this.livros = livros;
+    }
+
+    @Override
+    public String toString() {
+        return "Autor='" + getAutor() + '\n' +
+                "Ano de nascimento: " + getAnoNascimento() + "\n" +
+                "Ano de falecimento: " + getAnoFalecimento() +
+                "Livros: " + "[ " + getLivros() + " ]";
     }
 }

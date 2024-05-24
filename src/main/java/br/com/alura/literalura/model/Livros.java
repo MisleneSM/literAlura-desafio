@@ -1,60 +1,42 @@
 package br.com.alura.literalura.model;
 
+import java.util.stream.Collectors;
+
 public class Livros {
     private String autor;
     private String idioma;
     private Integer numeroDownloads;
     private String titulo;
-    private Long id;
 
-    public Livros () {}
+    public Livros (DadosLivros dadosLivros) {
+        this.autor = dadosLivros.autores().stream().map(DadosAutor::nome).collect(Collectors.joining(", "));
+        this.idioma = String.join(", ", dadosLivros.idiomas());
+        this.titulo = dadosLivros.titulo();
+        this.numeroDownloads = dadosLivros.numeroDonwloads();
+    }
 
     public String getAutor() {
         return autor;
-    }
-
-    public void setAutor(String autor) {
-        this.autor = autor;
     }
 
     public String getIdioma() {
         return idioma;
     }
 
-    public void setIdioma(String idioma) {
-        this.idioma = idioma;
-    }
-
     public Integer getNumeroDownloads() {
         return numeroDownloads;
-    }
-
-    public void setNumeroDownloads(Integer numeroDownloads) {
-        this.numeroDownloads = numeroDownloads;
     }
 
     public String getTitulo() {
         return titulo;
     }
 
-    public void setTitulo(String titulo) {
-        this.titulo = titulo;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     @Override
     public String toString() {
-        return "autor=" + autor + '\'' +
-                ", idioma='" + idioma + '\'' +
-                ", numeroDownloads=" + numeroDownloads +
-                ", titulo='" + titulo + '\'' +
-                ", id=" + id;
+        return "------ LIVRO ------\n" +
+                "Titulo: " + getTitulo() + "\n" +
+                "Autor: " + getAutor() + "\n" +
+                "Idioma: " + getIdioma() + "\n" +
+                "Número de downloads: " + getNumeroDownloads();
     }
 }
