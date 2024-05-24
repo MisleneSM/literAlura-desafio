@@ -1,8 +1,16 @@
 package br.com.alura.literalura.principal;
 
+import br.com.alura.literalura.model.DadosLivros;
+import br.com.alura.literalura.model.DadosResultados;
+import br.com.alura.literalura.model.Livros;
+import br.com.alura.literalura.service.ConsumoApi;
+import br.com.alura.literalura.service.ConverteDados;
+
 import java.util.Scanner;
 
 public class Principal {
+    private ConsumoApi consumo = new ConsumoApi();
+    private ConverteDados conversor = new ConverteDados();
     private final String ENDERECO = "http://gutendex.com/books/?search=";
     //"http://gutendex.com/books/?search=dom+casmurro"
     Scanner scanner = new Scanner(System.in);
@@ -12,7 +20,7 @@ public class Principal {
         var opcao = -1;
         while (opcao != 0){
             System.out.println("""
-                ----------------------------
+                ---------------------------------------
                 BEM VINDO(A) AO NOSSO SISTEMA DE LIVROS 
                 
                 Escolha o número de sua opção:
@@ -52,12 +60,32 @@ public class Principal {
                     break;
             }
         }
-
-
     }
 
-    private void buscarLivroPeloTitulo() {
+    private void buscarLivroPeloTitulo(){
+        DadosLivros dados = getDadosLivros();
+        if(dados != null){
+            Livros livros = new Livros(dados);
+            System.out.println(livros);
+        }else {
+            System.out.println("Nenhum livro encontrado.");
+        }
+    }
 
+    private DadosLivros getDadosLivros() {
+        System.out.println("Insira o nome do livro que você deseja buscar:");
+        var nomeLivro = scanner.nextLine();
+
+        var json = consumo.obterDados(ENDERECO + nomeLivro.replace(" ", "+"));
+
+        DadosResultados dados = conversor.obterDados(json, DadosResultados.class);
+
+        if(dados.resultados().isEmpty()){
+            System.out.println("Nenhum livro encontrado com o título fornecido");
+            return null;
+        }
+
+        return dados.resultados().get(0);
     }
 
     private void listarLivrosPeloTitulo() {
