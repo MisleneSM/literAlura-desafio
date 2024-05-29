@@ -9,5 +9,4 @@ class LiteraluraApplicationTests {
 	@Test
 	void contextLoads() {
 	}
-
 }

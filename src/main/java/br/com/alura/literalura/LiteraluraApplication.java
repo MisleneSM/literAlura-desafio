@@ -13,14 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class LiteraluraApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) throws Exception {
-//		var consumoApi = new ConsumoApi();
-//		var json = consumoApi.obterDados("http://gutendex.com/books/?search=dom+casmurro");
-//		System.out.println("Resultado" + json);
-//
-////		//verificarApi.buscarLivrosApi();
-////		System.out.println(verificarApi.buscarLivrosApi());
-
-
 		Principal principal = new Principal();
 		principal.exibeMenu();
 	}
@@ -28,6 +20,4 @@ public class LiteraluraApplication implements CommandLineRunner {
 	public static void main(String[] args) {
 		SpringApplication.run(LiteraluraApplication.class, args);
 	}
-
-
 }

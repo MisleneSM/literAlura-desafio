@@ -1,17 +1,27 @@
 package br.com.alura.literalura.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "autor")
 public class Autor {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
     private String autor;
     private int anoNascimento;
     private int anoFalecimento;
 
     private String livros;
 
-    public Autor(DadosAutor dadosAutor){
+    public Autor() {}
+
+    public Autor(DadosAutor dadosAutor, String livro){
         this.autor = dadosAutor.nome();
         this.anoNascimento = dadosAutor.dataNascimento();
         this.anoFalecimento = dadosAutor.dataFalecimento();
-        this.livros = dadosAutor.livros();
+        this.livros = livro;
     }
 
     public String getAutor() {
@@ -48,9 +58,10 @@ public class Autor {
 
     @Override
     public String toString() {
-        return "Autor='" + getAutor() + '\n' +
+        return
+                "Autor: " + getAutor() + '\n' +
                 "Ano de nascimento: " + getAnoNascimento() + "\n" +
-                "Ano de falecimento: " + getAnoFalecimento() +
-                "Livros: " + "[ " + getLivros() + " ]";
+                "Ano de falecimento: " + getAnoFalecimento() + "\n" +
+                "Livros: " + "[ " + getLivros() + " ]" + "\n";
     }
 }

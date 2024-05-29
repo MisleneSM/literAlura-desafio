@@ -1,16 +1,28 @@
 package br.com.alura.literalura.model;
 
+import jakarta.persistence.*;
+
 import java.util.stream.Collectors;
 
+@Entity
+@Table(name = "livros")
 public class Livros {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String autor;
     private String idioma;
     private Integer numeroDownloads;
     private String titulo;
 
+    public Livros() {
+    }
+
     public Livros (DadosLivros dadosLivros) {
         this.autor = dadosLivros.autores().stream().map(DadosAutor::nome).collect(Collectors.joining(", "));
-        this.idioma = String.join(", ", dadosLivros.idiomas());
+        this.idioma = dadosLivros.idiomas().isEmpty() ? "" : dadosLivros.idiomas().get(0);
         this.titulo = dadosLivros.titulo();
         this.numeroDownloads = dadosLivros.numeroDonwloads();
     }
@@ -37,6 +49,6 @@ public class Livros {
                 "Titulo: " + getTitulo() + "\n" +
                 "Autor: " + getAutor() + "\n" +
                 "Idioma: " + getIdioma() + "\n" +
-                "Número de downloads: " + getNumeroDownloads();
+                "Número de downloads: " + getNumeroDownloads() + "\n";
     }
 }
