@@ -73,7 +73,7 @@ spring.jpa.show-sql=true
 spring.jpa.format-sql=true`
 
 ```
-OBS: Caso deseje compartilhar este sistema com outra pessoa, apague as informações que foram alteradas (Acrescente novamente os parênteses com as descrições para que outros usuários possam realizar o preenchimeto com seu  próprio nome e senha).
+OBS: Caso deseje compartilhar este sistema com outra pessoa, apague as informações que foram alteradas (acrescente novamente os parênteses com as descrições para que outros usuários possam realizar o preenchimento indicando seu próprio nome e senha).
 
 * Atualize as dependências do Maven.
 * Executa a aplicação.
