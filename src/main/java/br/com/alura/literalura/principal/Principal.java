@@ -1,13 +1,21 @@
 package br.com.alura.literalura.principal;
 
 import br.com.alura.literalura.model.*;
+import br.com.alura.literalura.repository.AutorRepository;
+import br.com.alura.literalura.repository.LivrosRepository;
 import br.com.alura.literalura.service.ConsumoApi;
 import br.com.alura.literalura.service.ConverteDados;
+import org.springframework.core.env.Environment;
+import org.springframework.dao.DataIntegrityViolationException;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 public class Principal {
     private ConsumoApi consumo = new ConsumoApi();
@@ -18,6 +26,18 @@ public class Principal {
     private List<Autor> autores = new ArrayList<>();
 
     Scanner scanner = new Scanner(System.in);
+
+    private LivrosRepository repositorio;
+    private AutorRepository repositorio2;
+
+    private Environment env;
+
+    public Principal(LivrosRepository repositorio, AutorRepository repositorio2, Environment env) {
+        this.repositorio = repositorio;
+        this.repositorio2 = repositorio2;
+        this.env = env;
+    }
+
 
     public void exibeMenu(){
 
@@ -72,15 +92,51 @@ public class Principal {
         if(dados != null){
             // Transformando os dados obtidos na Classe Livros
             Livros livro = new Livros(dados);
-            listaDeLivros.add(livro);
 
             // Transformando os dados obtidos na Classe Autor
             for(DadosAutor dadosAutor : dados.autores()){
-                Autor autor = new Autor(dadosAutor, dados.titulo());
-                autores.add(autor);
+
+                // Verificando se o autor já se encontra armazenado no banco de dados
+                Optional<Autor> autorExistente = repositorio2.findByAutor(dadosAutor.nome());
+
+                Autor autor;
+
+                if(autorExistente.isPresent()){
+                    autor = autorExistente.get();
+                } else{
+                    autor = new Autor(dadosAutor, dados.titulo());
+                    repositorio2.save(autor);
+                }
+                livro.setAutor(autor);
             }
 
-            System.out.println(livro);
+            try {
+                repositorio.save(livro);
+                System.out.println(livro);
+            } catch (DataIntegrityViolationException e) {
+                System.out.println("Não é possível armazenar este livro, pois ele já está registrado. Realize a visualização com a opção de listagem.");
+                resetarSequencia();
+            }
+        }
+    }
+
+    // Função para resetar sequencia de id's de dados já armazenados
+    private void resetarSequencia() {
+        String url = env.getProperty("spring.datasource.url");
+        String user = env.getProperty("spring.datasource.username");
+        String password = env.getProperty("spring.datasource.password");
+
+        try {
+            assert url != null;
+            try (Connection connection = DriverManager.getConnection(url, user, password);
+                     Statement statement = connection.createStatement()) {
+
+                String sql = "SELECT setval('livros_id_seq', (SELECT MAX(id) FROM livros))";
+                statement.execute(sql);
+
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro para resetar a sequência: " + e.getMessage());;
         }
     }
 
@@ -101,10 +157,12 @@ public class Principal {
     }
 
     private void listarLivrosPeloTitulo() {
+        listaDeLivros = repositorio.findAll();
         listaDeLivros.forEach(System.out::println);
     }
 
     private void listarAutoresRegistrados() {
+        autores = repositorio2.findAll();
         autores.forEach(System.out::println);
     }
 
@@ -113,9 +171,14 @@ public class Principal {
         var anoDigitado = scanner.nextInt();
         scanner.nextLine();
 
-        List<Autor> autoresVivos = autores.stream()
-                .filter(autor -> autor.getAnoNascimento() <= anoDigitado && (autor.getAnoFalecimento() == -1 || autor.getAnoFalecimento() > anoDigitado))
-                .collect(Collectors.toList());
+        autores = repositorio2.findAll();
+//         utilizando lista de stream
+//        List<Autor> autoresVivos = autores.stream()
+//                .filter(autor -> autor.getAnoNascimento() <= anoDigitado && (autor.getAnoFalecimento() == -1 || autor.getAnoFalecimento() > anoDigitado))
+//                .collect(Collectors.toList());
+
+        // Ajustado para Media queries
+        List<Autor> autoresVivos = repositorio2.findByAnoNascimentoLessThanEqualAndAnoFalecimentoGreaterThanEqualOrAnoFalecimentoIsNull(anoDigitado, anoDigitado);
 
         if (!autoresVivos.isEmpty()) {
             autoresVivos.forEach(System.out::println);
@@ -138,16 +201,23 @@ public class Principal {
             opcao = scanner.nextLine().trim().toLowerCase();
 
             String finalOpcao = opcao;
-            var livrosPorIdioma = listaDeLivros.stream()
-                    .filter(livro -> livro.getIdioma().equalsIgnoreCase(finalOpcao))
-                    .collect(Collectors.toList());
 
-            if(!livrosPorIdioma.isEmpty()){
-                livrosPorIdioma.forEach(System.out::println);
-                break;
+            listaDeLivros = repositorio.findAll();
+
+//           Utilizando stream
+//            var livrosPorIdioma = listaDeLivros.stream()
+//                    .filter(livro -> livro.getIdioma().equalsIgnoreCase(finalOpcao))
+//                    .collect(Collectors.toList());
+
+            // Ajustado para Media queries (deu certo de primeira uhull kkk)
+            Optional<Livros> livrosPorIdioma = repositorio.findByIdiomaContainingIgnoreCase(finalOpcao);
+
+            if(livrosPorIdioma.isPresent()){
+                System.out.println(livrosPorIdioma.get());
             } else {
                 System.out.println("Nenhum livro encontrado para o idioma selecionado.");
             }
+            break;
         }
     }
 }
